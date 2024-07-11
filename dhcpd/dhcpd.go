@@ -11,7 +11,7 @@ import (
 	"github.com/google/gopacket/pcap"
 	"github.com/insomniacslk/dhcp/dhcpv4"
 	"github.com/insomniacslk/dhcp/dhcpv4/server4"
-	"github.com/vishvananda/netlink"
+	"github.com/yudaiyan/go-netlink/netlink"
 	"github.com/yudaiyan/go-sync/sync"
 )
 
@@ -195,29 +195,6 @@ func (s *dhcpd) sendUnicast(peer *net.UDPAddr, m *dhcpv4.DHCPv4, payload *dhcpv4
 	return handle.WritePacketData(data)
 }
 
-func (s *dhcpd) getLocalInterface() (err error) {
-	defer func() {
-		log.Printf("本地网卡%s: [%s:%s:%s]", s.ifname, s.localIp, s.localMask, s.localMac)
-	}()
-
-	link, err := netlink.LinkByName(s.ifname)
-	if err != nil {
-		return
-	}
-	addrs, err := netlink.AddrList(link, netlink.FAMILY_V4)
-	if err != nil {
-		return
-	}
-	if len(addrs) == 0 {
-		err = fmt.Errorf("网卡 %s 没有配置ip", s.ifname)
-		return
-	}
-	s.localIp = addrs[0].IPNet.IP
-	s.localMask = addrs[0].IPNet.Mask
-	s.localMac = link.Attrs().HardwareAddr
-	return nil
-}
-
 // 以带有空格的格式打印出每个字节的十六进制表示
 func printHex(data []byte) {
 	for i, b := range data {
@@ -247,7 +224,7 @@ func CreateServer(ifname string) error {
 		macs:       sync.SyncList[[6]byte]{},
 	}
 	var err error
-	err = dhcpd0.getLocalInterface()
+	dhcpd0.localIp, dhcpd0.localMask, dhcpd0.localMac, err = netlink.GetLocalInterface(dhcpd0.ifname)
 	if err != nil {
 		return err
 	}
