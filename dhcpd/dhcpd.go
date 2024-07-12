@@ -140,7 +140,6 @@ func (s *dhcpd) createUnicastPayload(m *dhcpv4.DHCPv4, messageType dhcpv4.Messag
 	reply.UpdateOption(dhcpv4.OptIPAddressLeaseTime(time.Hour * 6))
 	reply.UpdateOption(dhcpv4.OptSubnetMask(s.localMask))
 	reply.UpdateOption(dhcpv4.OptRouter(s.localIp))
-	reply.UpdateOption(dhcpv4.OptDomainName("example.org"))
 	reply.SetUnicast()
 	reply.Options.Del(dhcpv4.OptionClientIdentifier)
 
