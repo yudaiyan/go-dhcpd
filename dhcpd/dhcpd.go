@@ -183,7 +183,7 @@ func (s *dhcpd) sendUnicast(peer *net.UDPAddr, m *dhcpv4.DHCPv4, payload *dhcpv4
 		gopacket.Payload(payload.ToBytes()),
 	)
 	// 打开网络接口
-	handle, err := pcap.OpenLive(s.ifname, 65536, true, pcap.BlockForever)
+	handle, err := pcap.OpenLive(s.ifname, 65535, true, pcap.BlockForever)
 	if err != nil {
 		return err
 	}
